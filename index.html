@@ -2696,5 +2696,16 @@
 
         updateUI();
     </script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabaseUrl = 'https://kohjhjamqtvrnawpdrpv.supabase.co'
+  const supabaseKey = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvaGpoamFtcXR2cm5hd3BkcnB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4Mzg3MTUsImV4cCI6MjA5MjQxNDcxNX0.ds-6BmrwYwBXlpvIYJeKFu5iSjuoy3u5hOAIle0dDlk'
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  console.log("Dzsouk-3 est connecté à Supabase !");
+</script>
+
 </body>
 </html>

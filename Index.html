@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ Souk - Import Export 🇩🇿</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f5f5;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #006233 0%, #5D5CDE 100%);
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF0050 0%, #5D5CDE 100%);
+            box-shadow: 0 8px 30px rgba(255, 0, 80, 0.5);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(255, 0, 80, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 12px 40px rgba(255, 0, 80, 0.7); }
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1) !important;
+            animation: none;
+        }
+
+        .live-btn {
+            position: fixed;
+            bottom: 170px;
+            right: 20px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF0000 0%, #FF6B00 100%);
+            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.5);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            animation: livePulse 1.5s infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { box-shadow: 0 8px 30px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 8px 50px rgba(255, 0, 0, 0.9); }
+        }
+
+        .live-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 30;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .post-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .post-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .like-btn.liked {
+            color: #ef4444;
+            animation: heartBeat 0.4s ease;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        video {
+            background: #000;
+        }
+
+        .badge-live {
+            background: linear-gradient(135deg, #FF0000 0%, #FF6B00 100%);
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide-up { animation: slideUp 0.4s ease-out; }
+
+        /* RTL Support pour l'arabe */
+        body.rtl {
+            direction: rtl;
+            font-family: 'Arial', 'Tahoma', sans-serif;
+        }
+
+        body.rtl .floating-btn {
+            right: auto;
+            left: 20px;
+        }
+
+        body.rtl .live-btn {
+            right: auto;
+            left: 20px;
+        }
+
+        body.rtl .post-card {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-4 sticky top-0 z-20 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+            <h1 class="flex items-center">
+                <img src="https://pfst.cf2.poecdn.net/base/image/5841c8c50909bd0c3cc0b7fb551187c9c11723962b49f7a72c204b9a5a1d1ada?w=1024&h=1024" alt="DZ Souk" class="h-20 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span style="display: none;" class="text-2xl font-bold text-white"><i class="fas fa-store mr-2"></i>DZ Souk</span>
+            </h1>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleLanguage()" class="px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-sm font-semibold flex items-center gap-2" title="Changer la langue / تغيير اللغة">
+                    <span id="lang-flag">🇫🇷</span>
+                    <span id="lang-text">FR</span>
+                </button>
+                <div id="auth-section" class="flex items-center gap-2">
+                    <button onclick="showLogin()" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-sm">
+                        Connexion
+                    </button>
+                    <button onclick="showRegister()" class="px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition text-sm">
+                        Inscription
+                    </button>
+                </div>
+                <div id="user-section" style="display: none;" class="flex items-center gap-3">
+                    <span id="user-name" class="font-semibold text-sm"></span>
+                    <button onclick="logout()" class="px-3 py-2 bg-red-500 rounded-lg hover:bg-red-600 transition text-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="pb-24 pt-4">
+        <div class="max-w-7xl mx-auto px-4">
+
+            <!-- Filters -->
+            <div id="filters-container" class="flex gap-2 mb-6 overflow-x-auto pb-2" style="-ms-overflow-style: none; scrollbar-width: none;">
+            </div>
+
+            <!-- Posts -->
+            <div id="posts-feed" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-20">
+                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg mb-6">Aucune annonce</p>
+                <button onclick="showPublish()" class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                    <i class="fas fa-plus mr-2"></i>Publier
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Buttons -->
+    <div class="live-btn" onclick="startLive()" title="Démarrer un Live">
+        <i class="fas fa-video text-white text-2xl"></i>
+    </div>
+
+    <div class="floating-btn" onclick="showPublish()" title="Publier">
+        <i class="fas fa-plus text-white text-3xl"></i>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <div class="flex justify-around items-center py-3">
+            <button onclick="goHome()" class="flex flex-col items-center text-purple-600">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">Accueil</span>
+            </button>
+            <button onclick="search()" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-search text-xl"></i>
+                <span class="text-xs mt-1">Rechercher</span>
+            </button>
+            <button onclick="showPublish()" class="flex flex-col items-center text-purple-600">
+                <i class="fas fa-plus-circle text-3xl"></i>
+            </button>
+            <button onclick="showMessages()" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-envelope text-xl"></i>
+                <span class="text-xs mt-1">Messages</span>
+            </button>
+            <button onclick="notifications()" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-bell text-xl"></i>
+                <span class="text-xs mt-1">Notifs</span>
+            </button>
+            <button onclick="profile()" class="flex flex-col items-center text-gray-500">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">Profil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modals -->
+    <div id="register-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Inscription</h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form onsubmit="register(event)">
+                <input type="text" id="reg-name" placeholder="Nom complet" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <input type="email" id="reg-email" placeholder="Email" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <div class="relative mb-4">
+                    <input type="password" id="reg-password" placeholder="Mot de passe" required class="w-full px-4 py-3 pr-12 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <button type="button" onclick="togglePasswordVisibility('reg-password', this)" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <input type="tel" id="reg-phone" placeholder="Téléphone (+213 ou +33)" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <select id="reg-country" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500" onchange="updateLocationOptions()">
+                    <option value="">Pays</option>
+                    <option value="algerie">🇩🇿 Algérie</option>
+                    <option value="france">🇫🇷 France</option>
+                    <option value="italie">🇮🇹 Italie</option>
+                    <option value="espagne">🇪🇸 Espagne</option>
+                    <option value="belgique">🇧🇪 Belgique</option>
+                    <option value="allemagne">🇩🇪 Allemagne</option>
+                </select>
+                <select id="reg-wilaya" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">Sélectionnez d'abord un pays</option>
+                </select>
+                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                    S'inscrire
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Connexion</h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form onsubmit="login(event)">
+                <input type="email" id="login-email" placeholder="Email" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <div class="relative mb-4">
+                    <input type="password" id="login-password" placeholder="Mot de passe" required class="w-full px-4 py-3 pr-12 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="text-right mb-4">
+                    <a href="#" onclick="showForgotPassword(); return false;" class="text-sm text-purple-600 hover:text-purple-700 font-semibold">
+                        Mot de passe oublié ?
+                    </a>
+                </div>
+                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                    Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Mot de passe oublié -->
+    <div id="forgot-password-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Mot de passe oublié</h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mb-4 text-sm">
+                Entrez votre email et nous vous enverrons un code de réinitialisation.
+            </p>
+            <form onsubmit="sendResetCode(event)">
+                <input type="email" id="reset-email" placeholder="Votre email" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                    Envoyer le code
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Code de réinitialisation -->
+    <div id="reset-code-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Réinitialiser le mot de passe</h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800 mb-2">
+                    <i class="fas fa-check-circle mr-2"></i>Code envoyé à votre email !
+                </p>
+                <p class="text-xs text-gray-600">
+                    Code de vérification : <span id="display-reset-code" class="font-bold text-purple-600"></span>
+                </p>
+            </div>
+            <form onsubmit="resetPassword(event)">
+                <input type="text" id="verify-code" placeholder="Entrez le code reçu" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                <div class="relative mb-4">
+                    <input type="password" id="new-password" placeholder="Nouveau mot de passe" required class="w-full px-4 py-3 pr-12 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <button type="button" onclick="togglePasswordVisibility('new-password', this)" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="relative mb-4">
+                    <input type="password" id="confirm-password" placeholder="Confirmer le mot de passe" required class="w-full px-4 py-3 pr-12 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <button type="button" onclick="togglePasswordVisibility('confirm-password', this)" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                    Réinitialiser
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="publish-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-camera mr-2 text-purple-600"></i>Publier
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form onsubmit="publish(event)">
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-3 font-semibold">
+                        <i class="fas fa-image mr-2"></i>Photos / Vidéos
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-purple-500 transition" onclick="document.getElementById('media-input').click()">
+                        <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600">Cliquez pour ajouter</p>
+                        <input type="file" id="media-input" accept="image/*,video/*" multiple class="hidden" onchange="handleMedia(event)">
+                    </div>
+                    <div id="media-preview" class="grid grid-cols-3 gap-3 mt-4"></div>
+                </div>
+
+                <select id="post-type" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">Type d'annonce</option>
+                    <option value="product">🛍️ Produit</option>
+                    <option value="service">🤝 Service</option>
+                    <option value="demand">📢 Demande</option>
+                </select>
+
+                <select id="post-category" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">Catégorie</option>
+                    <option value="grossiste">🏭 Grossiste</option>
+                    <option value="particulier">👤 Particulier</option>
+                    <option value="detaillant">🏪 Détaillant</option>
+                    <option value="livreur">🚚 Livreur</option>
+                    <option value="alimentaire">🍎 Alimentaire</option>
+                    <option value="vehicule">🚗 Véhicule</option>
+                    <option value="textiles">👕 Textiles</option>
+                    <option value="immobilier">🏢 Immobilier</option>
+                    <option value="location-maison">🏠 Location Maison</option>
+                    <option value="location-vehicule">🚙 Location Véhicule</option>
+                    <option value="hotels">🏨 Hôtels</option>
+                    <option value="electronique">📱 Électronique</option>
+                    <option value="jeux">🎮 Jeux</option>
+                    <option value="velo">🚴 Vélo</option>
+                    <option value="marketing-digital">💻 Marketing Digital</option>
+                    <option value="agence-immobiliere">🏘️ Agence Immobilière</option>
+                    <option value="formation">📚 Formation</option>
+                    <option value="cours-langue">🗣️ Cours de Langue</option>
+                </select>
+
+                <input type="text" id="post-title" placeholder="Titre" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+
+                <textarea id="post-description" placeholder="Description..." required rows="4" class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+
+                <input type="number" id="post-price" placeholder="Prix (DA)" min="0" class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-purple-500">
+
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-bold text-lg hover:shadow-xl transition">
+                    <i class="fas fa-rocket mr-2"></i>Publier
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="live-modal" class="modal">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 animate-slide-up flex flex-col" style="max-height: 90vh;">
+            <div class="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10 rounded-t-2xl">
+                <h2 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-video mr-2 text-red-600"></i>Démarrer un Live
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 p-4">
+                <!-- Message d'information -->
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-info-circle text-blue-500 text-lg mt-1"></i>
+                        <div>
+                            <p class="text-xs font-semibold text-blue-900 mb-1">📹 Lives réels avec votre caméra bientôt disponibles !</p>
+                            <p class="text-xs text-blue-700">
+                                Pour le moment, vous pouvez lancer un Live et afficher vos liens (WhatsApp, Facebook, Instagram, site web, etc.) sur l'écran pour que vos clients vous contactent directement !
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="createLive(event)" id="live-form">
+                <input type="text" id="live-title" placeholder="Titre du Live" required class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-red-500">
+                <textarea id="live-description" placeholder="Description..." required rows="3" class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-red-500"></textarea>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-3 font-semibold text-sm">
+                        <i class="fas fa-image mr-2"></i>Photo de fond du Live (optionnel)
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">
+                        🖼️ Ajoutez une photo de vos produits comme fond du Live ! Si vous n'ajoutez pas de photo, l'écran sera rouge.
+                    </p>
+                    <input type="file" id="live-image-input" accept="image/*" class="hidden" onchange="handleLiveImage(event)">
+                    <button type="button" onclick="document.getElementById('live-image-input').click()" class="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-red-500 hover:bg-red-50 transition">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-gray-600 text-sm font-semibold">📸 Cliquez pour ajouter une photo</p>
+                        <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG</p>
+                    </button>
+                    <div id="live-image-preview"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-3 font-semibold text-sm">
+                        <i class="fas fa-link mr-2"></i>Liens épinglés (WhatsApp, Facebook, Instagram, etc.)
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">
+                        💡 Ajoutez vos liens de réseaux sociaux pour que vos clients puissent vous contacter !
+                    </p>
+                    <div id="live-links-container" class="space-y-3 mb-3"></div>
+                    <button type="button" onclick="addLiveLink()" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition text-sm">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un lien
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-3 font-semibold text-sm">
+                        <i class="fas fa-text mr-2"></i>Messages à afficher sur l'écran du Live
+                    </label>
+                    <p class="text-xs text-gray-500 mb-3">
+                        ✍️ Ajoutez des messages (prix, promotions, annonces) qui s'afficheront sur l'écran du Live !
+                    </p>
+                    <div id="live-messages-container" class="space-y-3 mb-3"></div>
+                    <button type="button" onclick="addLiveMessage()" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition text-sm">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un message
+                    </button>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl font-bold text-lg hover:shadow-xl transition">
+                    <i class="fas fa-broadcast-tower mr-2"></i>Démarrer le Live
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="comments-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-comments mr-2 text-blue-500"></i>Commentaires
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="comments-list" class="mb-6 space-y-4 max-h-96 overflow-y-auto"></div>
+            <form onsubmit="addComment(event)" class="flex gap-2">
+                <input type="text" id="comment-input" placeholder="Commentaire..." required class="flex-1 px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-3xl w-full mx-4 max-h-screen overflow-y-auto animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-user-circle mr-2 text-purple-600"></i>Profil
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="profile-content"></div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notifications-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-bell mr-2 text-yellow-600"></i>Notifications
+                    <span id="notif-badge" class="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full hidden">0</span>
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="notifications-list"></div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-screen overflow-y-auto animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-search mr-2 text-blue-600"></i>Recherche
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="mb-6">
+                <input type="text" id="search-input" placeholder="Rechercher des produits, services, utilisateurs..." class="w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-blue-500" oninput="performSearch()">
+            </div>
+            <div class="mb-6 flex gap-2 flex-wrap">
+                <select id="search-type" class="px-4 py-2 text-base border rounded-lg" onchange="performSearch()">
+                    <option value="">Tous les types</option>
+                    <option value="product">Produits</option>
+                    <option value="service">Services</option>
+                    <option value="demand">Demandes</option>
+                    <option value="live">Lives</option>
+                </select>
+                <select id="search-country" class="px-4 py-2 text-base border rounded-lg" onchange="updateSearchLocationOptions()">
+                    <option value="">Tous les pays</option>
+                    <option value="algerie">🇩🇿 Algérie</option>
+                    <option value="france">🇫🇷 France</option>
+                    <option value="italie">🇮🇹 Italie</option>
+                    <option value="espagne">🇪🇸 Espagne</option>
+                    <option value="belgique">🇧🇪 Belgique</option>
+                    <option value="allemagne">🇩🇪 Allemagne</option>
+                </select>
+                <select id="search-wilaya" class="px-4 py-2 text-base border rounded-lg" onchange="performSearch()">
+                    <option value="">Toutes les villes</option>
+                </select>
+                <input type="number" id="search-min-price" placeholder="Prix min" class="px-4 py-2 text-base border rounded-lg w-32" oninput="performSearch()">
+                <input type="number" id="search-max-price" placeholder="Prix max" class="px-4 py-2 text-base border rounded-lg w-32" oninput="performSearch()">
+            </div>
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-share-alt mr-2 text-green-600"></i>Partager
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="share-content" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div id="messages-modal" class="modal">
+        <div class="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-screen overflow-hidden animate-slide-up flex flex-col" style="height: 80vh;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-envelope mr-2 text-blue-600"></i>Messages
+                </h2>
+                <button onclick="closeModals()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="flex flex-1 gap-4 overflow-hidden">
+                <!-- Liste des conversations -->
+                <div class="w-1/3 border-r overflow-y-auto">
+                    <div id="conversations-list"></div>
+                </div>
+                <!-- Zone de chat -->
+                <div class="flex-1 flex flex-col">
+                    <div id="chat-area" class="flex-1 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="text-center text-gray-500 py-20">
+                            <i class="fas fa-comments text-6xl mb-4"></i>
+                            <p>Sélectionnez une conversation</p>
+                        </div>
+                    </div>
+                    <div id="message-input-area" class="hidden">
+                        <form onsubmit="sendMessage(event)" class="flex gap-2">
+                            <input type="text" id="message-text" placeholder="Votre message..." required class="flex-1 px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dictionnaire de traductions FR/AR
+        const translations = {
+            fr: {
+                // Header
+                login: 'Connexion',
+                register: 'Inscription',
+                logout: 'Déconnexion',
+
+                // Navigation
+                home: 'Accueil',
+                search: 'Rechercher',
+                messages: 'Messages',
+                notifications: 'Notifs',
+                profile: 'Profil',
+
+                // Filtres
+                all: 'Tout',
+                lives: 'Lives',
+                wholesaler: 'Grossiste',
+                retailer: 'Détaillant',
+                individual: 'Particulier',
+                delivery: 'Livreur',
+                food: 'Alimentaire',
+                vehicle: 'Véhicule',
+                textiles: 'Textiles',
+                realEstate: 'Immobilier',
+                houseRental: 'Location Maison',
+                vehicleRental: 'Location Véhicule',
+                hotels: 'Hôtels',
+                electronics: 'Électronique',
+                games: 'Jeux',
+                bike: 'Vélo',
+                digitalMarketing: 'Marketing Digital',
+                realEstateAgency: 'Agence Immobilière',
+                training: 'Formation',
+                languageCourses: 'Cours de Langue',
+
+                // Boutons
+                publish: 'Publier',
+                startLive: 'Démarrer un Live',
+                follow: 'Suivre',
+                following: 'Abonné',
+                contact: 'Contact',
+                share: 'Partager',
+
+                // Formulaires
+                fullName: 'Nom complet',
+                email: 'Email',
+                password: 'Mot de passe',
+                phone: 'Téléphone (+213 ou +33)',
+                country: 'Pays',
+                wilaya: 'Wilaya',
+                city: 'Ville',
+                department: 'Département',
+                selectCountryFirst: 'Sélectionnez d\'abord un pays',
+                title: 'Titre',
+                description: 'Description...',
+                price: 'Prix (DA)',
+
+                // Types d'annonces
+                product: 'Produit',
+                service: 'Service',
+                demand: 'Demande',
+                adType: 'Type d\'annonce',
+                category: 'Catégorie',
+
+                // Messages
+                welcome: 'Bienvenue',
+                emailExists: 'Email existe déjà',
+                accountCreated: 'Compte créé !',
+                incorrectCredentials: 'Identifiants incorrects',
+                disconnected: 'Déconnecté',
+                loginRequired: 'Connectez-vous',
+                noAds: 'Aucune annonce',
+                noComments: 'Aucun commentaire',
+                noNotifications: 'Aucune notification',
+                noResults: 'Aucun résultat',
+                linkCopied: 'Lien copié ! 📋',
+                contactUnavailable: 'Contact indisponible',
+
+                // Profil
+                publications: 'Publications',
+                followers: 'Abonnés',
+                subscriptions: 'Abonnements',
+                partners: 'Partenaires',
+                recommendAsPartner: 'Recommander comme Partenaire',
+                partnerRecommended: 'Partenaire Recommandé ✓',
+                myPublications: 'Mes Publications',
+                noPublications: 'Aucune publication',
+
+                // Live
+                liveInProgress: 'LIVE EN COURS',
+                viewers: 'spectateurs',
+                pinnedLinks: 'Liens épinglés',
+                liveTitle: 'Titre du Live',
+                addLink: 'Ajouter un lien',
+                linkTitle: 'Titre du lien (ex: WhatsApp, Site Web...)',
+
+                // Messagerie
+                yourMessage: 'Votre message...',
+                noConversations: 'Aucune conversation',
+                contactSellerToStart: 'Contactez un vendeur pour démarrer une conversation',
+                selectConversation: 'Sélectionnez une conversation',
+                conversationWith: 'Conversation avec',
+                sendFirstMessage: 'Envoyez votre premier message',
+
+                // Recherche
+                searchPlaceholder: 'Rechercher des produits, services, utilisateurs...',
+                allTypes: 'Tous les types',
+                products: 'Produits',
+                services: 'Services',
+                demands: 'Demandes',
+                allCountries: 'Tous les pays',
+                allCities: 'Toutes les villes',
+                allWilayas: 'Toutes les wilayas',
+                allDepartments: 'Tous les départements',
+                minPrice: 'Prix min',
+                maxPrice: 'Prix max',
+                resultsFound: 'résultat(s) trouvé(s)',
+
+                // Notifications types
+                liked: 'a aimé votre publication',
+                commented: 'a commenté votre publication',
+                subscribed: 's\'est abonné(e) à votre profil',
+                recommendedPartner: 'vous a recommandé comme partenaire !',
+                sentMessage: 'vous a envoyé un message',
+
+                // Pays
+                algeria: '🇩🇿 Algérie',
+                france: '🇫🇷 France',
+                italy: '🇮🇹 Italie',
+                spain: '🇪🇸 Espagne',
+                belgium: '🇧🇪 Belgique',
+                germany: '🇩🇪 Allemagne'
+            },
+            ar: {
+                // Header
+                login: 'تسجيل الدخول',
+                register: 'التسجيل',
+                logout: 'تسجيل الخروج',
+
+                // Navigation
+                home: 'الرئيسية',
+                search: 'بحث',
+                messages: 'الرسائل',
+                notifications: 'الإشعارات',
+                profile: 'الملف الشخصي',
+
+                // Filtres
+                all: 'الكل',
+                lives: 'البث المباشر',
+                wholesaler: 'تاجر جملة',
+                retailer: 'بائع تجزئة',
+                individual: 'فرد',
+                delivery: 'توصيل',
+                food: 'مواد غذائية',
+                vehicle: 'مركبات',
+                textiles: 'منسوجات',
+                realEstate: 'عقارات',
+                houseRental: 'إيجار منازل',
+                vehicleRental: 'إيجار مركبات',
+                hotels: 'فنادق',
+                electronics: 'إلكترونيات',
+                games: 'ألعاب',
+                bike: 'دراجات',
+                digitalMarketing: 'تسويق رقمي',
+                realEstateAgency: 'وكالة عقارية',
+                training: 'تدريب',
+                languageCourses: 'دروس لغات',
+
+                // Boutons
+                publish: 'نشر',
+                startLive: 'بدء البث المباشر',
+                follow: 'متابعة',
+                following: 'متابَع',
+                contact: 'اتصال',
+                share: 'مشاركة',
+
+                // Formulaires
+                fullName: 'الاسم الكامل',
+                email: 'البريد الإلكتروني',
+                password: 'كلمة المرور',
+                phone: 'الهاتف (+213 أو +33)',
+                country: 'البلد',
+                wilaya: 'الولاية',
+                city: 'المدينة',
+                department: 'المقاطعة',
+                selectCountryFirst: 'اختر البلد أولاً',
+                title: 'العنوان',
+                description: 'الوصف...',
+                price: 'السعر (دج)',
+
+                // Types d'annonces
+                product: 'منتج',
+                service: 'خدمة',
+                demand: 'طلب',
+                adType: 'نوع الإعلان',
+                category: 'الفئة',
+
+                // Messages
+                welcome: 'مرحباً',
+                emailExists: 'البريد الإلكتروني موجود بالفعل',
+                accountCreated: 'تم إنشاء الحساب!',
+                incorrectCredentials: 'بيانات الاعتماد غير صحيحة',
+                disconnected: 'تم تسجيل الخروج',
+                loginRequired: 'يرجى تسجيل الدخول',
+                noAds: 'لا توجد إعلانات',
+                noComments: 'لا توجد تعليقات',
+                noNotifications: 'لا توجد إشعارات',
+                noResults: 'لا توجد نتائج',
+                linkCopied: 'تم نسخ الرابط! 📋',
+                contactUnavailable: 'جهة الاتصال غير متاحة',
+
+                // Profil
+                publications: 'المنشورات',
+                followers: 'المتابعون',
+                subscriptions: 'الاشتراكات',
+                partners: 'الشركاء',
+                recommendAsPartner: 'التوصية كشريك',
+                partnerRecommended: 'شريك موصى به ✓',
+                myPublications: 'منشوراتي',
+                noPublications: 'لا توجد منشورات',
+
+                // Live
+                liveInProgress: 'بث مباشر جاري',
+                viewers: 'مشاهد',
+                pinnedLinks: 'روابط مثبتة',
+                liveTitle: 'عنوان البث المباشر',
+                addLink: 'إضافة رابط',
+                linkTitle: 'عنوان الرابط (مثال: واتساب، موقع...)',
+
+                // Messagerie
+                yourMessage: 'رسالتك...',
+                noConversations: 'لا توجد محادثات',
+                contactSellerToStart: 'اتصل ببائع لبدء محادثة',
+                selectConversation: 'اختر محادثة',
+                conversationWith: 'محادثة مع',
+                sendFirstMessage: 'أرسل رسالتك الأولى',
+
+                // Recherche
+                searchPlaceholder: 'البحث عن منتجات، خدمات، مستخدمين...',
+                allTypes: 'جميع الأنواع',
+                products: 'منتجات',
+                services: 'خدمات',
+                demands: 'طلبات',
+                allCountries: 'جميع البلدان',
+                allCities: 'جميع المدن',
+                allWilayas: 'جميع الولايات',
+                allDepartments: 'جميع المقاطعات',
+                minPrice: 'السعر الأدنى',
+                maxPrice: 'السعر الأقصى',
+                resultsFound: 'نتيجة',
+
+                // Notifications types
+                liked: 'أعجب بمنشورك',
+                commented: 'علق على منشورك',
+                subscribed: 'تابع ملفك الشخصي',
+                recommendedPartner: 'أوصى بك كشريك!',
+                sentMessage: 'أرسل لك رسالة',
+
+                // Pays
+                algeria: '🇩🇿 الجزائر',
+                france: '🇫🇷 فرنسا',
+                italy: '🇮🇹 إيطاليا',
+                spain: '🇪🇸 إسبانيا',
+                belgium: '🇧🇪 بلجيكا',
+                germany: '🇩🇪 ألمانيا'
+            }
+        };
+
+        // Langue actuelle (par défaut: français)
+        let currentLanguage = 'fr';
+
+        // Fonction pour obtenir une traduction
+        function t(key) {
+            return translations[currentLanguage][key] || translations.fr[key] || key;
+        }
+
+        // Fonction pour obtenir le nom traduit d'une catégorie
+        function getCategoryName(category) {
+            const categoryMap = {
+                'grossiste': 'wholesaler',
+                'detaillant': 'retailer',
+                'particulier': 'individual',
+                'livreur': 'delivery',
+                'alimentaire': 'food',
+                'vehicule': 'vehicle',
+                'textiles': 'textiles',
+                'immobilier': 'realEstate',
+                'location-maison': 'houseRental',
+                'location-vehicule': 'vehicleRental',
+                'hotels': 'hotels',
+                'electronique': 'electronics',
+                'jeux': 'games',
+                'velo': 'bike',
+                'marketing-digital': 'digitalMarketing',
+                'agence-immobiliere': 'realEstateAgency',
+                'formation': 'training',
+                'cours-langue': 'languageCourses'
+            };
+
+            const emoji = {
+                'grossiste': '🏭',
+                'detaillant': '🏪',
+                'particulier': '👤',
+                'livreur': '🚚',
+                'alimentaire': '🍎',
+                'vehicule': '🚗',
+                'textiles': '👕',
+                'immobilier': '🏢',
+                'location-maison': '🏠',
+                'location-vehicule': '🚙',
+                'hotels': '🏨',
+                'electronique': '📱',
+                'jeux': '🎮',
+                'velo': '🚴',
+                'marketing-digital': '💻',
+                'agence-immobiliere': '🏘️',
+                'formation': '📚',
+                'cours-langue': '🗣️'
+            };
+
+            return `${emoji[category] || ''} ${t(categoryMap[category] || category)}`;
+        }
+
+        // Fonction pour obtenir le nom traduit d'un type de post
+        function getPostTypeName(type) {
+            const typeMap = {
+                'product': { emoji: '🛍️', key: 'product' },
+                'service': { emoji: '🤝', key: 'service' },
+                'demand': { emoji: '📢', key: 'demand' },
+                'live': { emoji: '🔴', key: 'lives' }
+            };
+            const info = typeMap[type] || { emoji: '', key: type };
+            return `${info.emoji} ${t(info.key)}`;
+        }
+
+        // Fonction pour changer de langue
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'fr' ? 'ar' : 'fr';
+
+            // Mettre à jour l'interface
+            if (currentLanguage === 'ar') {
+                document.body.classList.add('rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+                document.getElementById('lang-flag').textContent = '🇩🇿';
+                document.getElementById('lang-text').textContent = 'AR';
+            } else {
+                document.body.classList.remove('rtl');
+                document.documentElement.setAttribute('lang', 'fr');
+                document.getElementById('lang-flag').textContent = '🇫🇷';
+                document.getElementById('lang-text').textContent = 'FR';
+            }
+
+            // Recharger l'interface avec la nouvelle langue
+            updateUILanguage();
+        }
+
+        // Fonction pour générer les filtres avec traductions
+        function renderFilters() {
+            const filtersContainer = document.getElementById('filters-container');
+            const filters = [
+                { key: 'all', icon: 'fas fa-th', translationKey: 'all' },
+                { key: 'live', icon: 'fas fa-video', translationKey: 'lives' },
+                { key: 'grossiste', emoji: '🏭', translationKey: 'wholesaler' },
+                { key: 'detaillant', emoji: '🏪', translationKey: 'retailer' },
+                { key: 'particulier', emoji: '👤', translationKey: 'individual' },
+                { key: 'livreur', emoji: '🚚', translationKey: 'delivery' },
+                { key: 'alimentaire', emoji: '🍎', translationKey: 'food' },
+                { key: 'vehicule', emoji: '🚗', translationKey: 'vehicle' },
+                { key: 'textiles', emoji: '👕', translationKey: 'textiles' },
+                { key: 'immobilier', emoji: '🏢', translationKey: 'realEstate' },
+                { key: 'location-maison', emoji: '🏠', translationKey: 'houseRental' },
+                { key: 'location-vehicule', emoji: '🚙', translationKey: 'vehicleRental' },
+                { key: 'hotels', emoji: '🏨', translationKey: 'hotels' },
+                { key: 'electronique', emoji: '📱', translationKey: 'electronics' },
+                { key: 'jeux', emoji: '🎮', translationKey: 'games' },
+                { key: 'velo', emoji: '🚴', translationKey: 'bike' },
+                { key: 'marketing-digital', emoji: '💻', translationKey: 'digitalMarketing' },
+                { key: 'agence-immobiliere', emoji: '🏘️', translationKey: 'realEstateAgency' },
+                { key: 'formation', emoji: '📚', translationKey: 'training' },
+                { key: 'cours-langue', emoji: '🗣️', translationKey: 'languageCourses' }
+            ];
+
+            filtersContainer.innerHTML = filters.map(filter => {
+                const isActive = currentFilter === filter.key;
+                const iconHtml = filter.icon ? `<i class="${filter.icon} mr-2"></i>` : `${filter.emoji} `;
+                return `
+                    <button onclick="filterPosts('${filter.key}')"
+                            class="filter-btn px-6 py-2 ${isActive ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'} rounded-full font-semibold whitespace-nowrap">
+                        ${iconHtml}${t(filter.translationKey)}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Fonction pour mettre à jour tous les textes de l'interface
+        function updateUILanguage() {
+            // Mettre à jour les boutons d'authentification
+            const authButtons = document.querySelectorAll('#auth-section button');
+            if (authButtons.length >= 2) {
+                authButtons[0].textContent = t('login');
+                authButtons[1].textContent = t('register');
+            }
+
+            // Mettre à jour la navigation du bas
+            const navButtons = document.querySelectorAll('.bottom-nav button span.text-xs');
+            if (navButtons.length >= 5) {
+                navButtons[0].textContent = t('home');
+                navButtons[1].textContent = t('search');
+                navButtons[2].textContent = t('messages');
+                navButtons[3].textContent = t('notifications');
+                navButtons[4].textContent = t('profile');
+            }
+
+            // Mettre à jour l'état vide
+            const emptyStateText = document.querySelector('#empty-state p');
+            const emptyStateBtn = document.querySelector('#empty-state button');
+            if (emptyStateText) emptyStateText.textContent = t('noAds');
+            if (emptyStateBtn) {
+                emptyStateBtn.innerHTML = `<i class="fas fa-plus mr-2"></i>${t('publish')}`;
+            }
+
+            // Regénérer les filtres
+            renderFilters();
+
+            // Recharger les posts pour mettre à jour les catégories
+            loadPosts();
+
+            // Si le modal de recherche est ouvert, le mettre à jour
+            if (document.getElementById('search-modal').classList.contains('active')) {
+                performSearch();
+            }
+        }
+
+        // Initialiser la langue au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            if (currentLanguage === 'ar') {
+                document.body.classList.add('rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+                document.getElementById('lang-flag').textContent = '🇩🇿';
+                document.getElementById('lang-text').textContent = 'AR';
+            }
+            renderFilters();
+            updateUILanguage();
+        });
+
+        const appData = {
+            users: [],
+            posts: [],
+            notifications: [],
+            partnerships: [],
+            messages: [],
+            currentUser: null,
+            currentPostId: null,
+            currentSharePostId: null,
+            currentChatUserId: null
+        };
+
+        let currentUser = null;
+        let uploadedFiles = [];
+        let currentFilter = 'all';
+        let liveLinks = [];
+        let liveMessages = [];
+        let liveBackgroundImage = null;
+
+        let resetCode = '';
+        let resetEmail = '';
+
+        function showRegister() { document.getElementById('register-modal').classList.add('active'); }
+        function showLogin() { document.getElementById('login-modal').classList.add('active'); }
+        function showForgotPassword() {
+            closeModals();
+            document.getElementById('forgot-password-modal').classList.add('active');
+        }
+
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function sendResetCode(e) {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            // Vérifier si l'email existe
+            const user = appData.users.find(u => u.email === email);
+            if (!user) {
+                notify('Aucun compte trouvé avec cet email', 'error');
+                return;
+            }
+
+            // Générer un code à 6 chiffres
+            resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+            resetEmail = email;
+
+            // Afficher le code (simulation d'envoi par email)
+            document.getElementById('display-reset-code').textContent = resetCode;
+
+            closeModals();
+            document.getElementById('reset-code-modal').classList.add('active');
+
+            notify('Code de réinitialisation généré !', 'success');
+        }
+
+        function resetPassword(e) {
+            e.preventDefault();
+
+            const code = document.getElementById('verify-code').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Vérifier le code
+            if (code !== resetCode) {
+                notify('Code incorrect !', 'error');
+                return;
+            }
+
+            // Vérifier que les mots de passe correspondent
+            if (newPassword !== confirmPassword) {
+                notify('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+
+            // Vérifier la longueur du mot de passe
+            if (newPassword.length < 6) {
+                notify('Le mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+
+            // Mettre à jour le mot de passe
+            const user = appData.users.find(u => u.email === resetEmail);
+            if (user) {
+                user.password = newPassword;
+                notify('Mot de passe réinitialisé avec succès ! 🎉', 'success');
+                closeModals();
+                // Réinitialiser les variables
+                resetCode = '';
+                resetEmail = '';
+                // Afficher le modal de connexion
+                setTimeout(() => showLogin(), 500);
+            } else {
+                notify('Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function updateLocationOptions() {
+            const country = document.getElementById('reg-country').value;
+            const wilayaSelect = document.getElementById('reg-wilaya');
+
+            wilayaSelect.innerHTML = '';
+
+            if (country === 'algerie') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Wilaya</option>
+                    <option>Alger</option>
+                    <option>Oran</option>
+                    <option>Constantine</option>
+                    <option>Annaba</option>
+                    <option>Blida</option>
+                    <option>Sétif</option>
+                    <option>Béjaïa</option>
+                    <option>Tizi Ouzou</option>
+                    <option>Tlemcen</option>
+                    <option>Batna</option>
+                `;
+            } else if (country === 'france') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Département</option>
+                    <option>Paris (75)</option>
+                    <option>Marseille (13)</option>
+                    <option>Lyon (69)</option>
+                    <option>Toulouse (31)</option>
+                    <option>Nice (06)</option>
+                    <option>Bordeaux (33)</option>
+                    <option>Lille (59)</option>
+                    <option>Strasbourg (67)</option>
+                    <option>Nantes (44)</option>
+                    <option>Montpellier (34)</option>
+                `;
+            } else if (country === 'italie') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Ville</option>
+                    <option>Rome</option>
+                    <option>Milan</option>
+                    <option>Naples</option>
+                    <option>Turin</option>
+                    <option>Florence</option>
+                    <option>Venise</option>
+                    <option>Bologne</option>
+                    <option>Gênes</option>
+                `;
+            } else if (country === 'espagne') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Ville</option>
+                    <option>Madrid</option>
+                    <option>Barcelone</option>
+                    <option>Valence</option>
+                    <option>Séville</option>
+                    <option>Saragosse</option>
+                    <option>Malaga</option>
+                    <option>Bilbao</option>
+                    <option>Alicante</option>
+                `;
+            } else if (country === 'belgique') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Ville</option>
+                    <option>Bruxelles</option>
+                    <option>Anvers</option>
+                    <option>Gand</option>
+                    <option>Charleroi</option>
+                    <option>Liège</option>
+                    <option>Bruges</option>
+                    <option>Namur</option>
+                `;
+            } else if (country === 'allemagne') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Ville</option>
+                    <option>Berlin</option>
+                    <option>Munich</option>
+                    <option>Hambourg</option>
+                    <option>Francfort</option>
+                    <option>Cologne</option>
+                    <option>Stuttgart</option>
+                    <option>Düsseldorf</option>
+                    <option>Dortmund</option>
+                `;
+            } else {
+                wilayaSelect.innerHTML = '<option value="">Sélectionnez d\'abord un pays</option>';
+            }
+        }
+
+        function updateSearchLocationOptions() {
+            const country = document.getElementById('search-country').value;
+            const wilayaSelect = document.getElementById('search-wilaya');
+
+            wilayaSelect.innerHTML = '';
+
+            if (country === 'algerie') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Toutes les wilayas</option>
+                    <option>Alger</option>
+                    <option>Oran</option>
+                    <option>Constantine</option>
+                    <option>Annaba</option>
+                    <option>Blida</option>
+                    <option>Sétif</option>
+                    <option>Béjaïa</option>
+                    <option>Tizi Ouzou</option>
+                    <option>Tlemcen</option>
+                    <option>Batna</option>
+                `;
+            } else if (country === 'france') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Tous les départements</option>
+                    <option>Paris (75)</option>
+                    <option>Marseille (13)</option>
+                    <option>Lyon (69)</option>
+                    <option>Toulouse (31)</option>
+                    <option>Nice (06)</option>
+                    <option>Bordeaux (33)</option>
+                    <option>Lille (59)</option>
+                    <option>Strasbourg (67)</option>
+                    <option>Nantes (44)</option>
+                    <option>Montpellier (34)</option>
+                `;
+            } else if (country === 'italie') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Toutes les villes</option>
+                    <option>Rome</option>
+                    <option>Milan</option>
+                    <option>Naples</option>
+                    <option>Turin</option>
+                    <option>Florence</option>
+                    <option>Venise</option>
+                    <option>Bologne</option>
+                    <option>Gênes</option>
+                `;
+            } else if (country === 'espagne') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Toutes les villes</option>
+                    <option>Madrid</option>
+                    <option>Barcelone</option>
+                    <option>Valence</option>
+                    <option>Séville</option>
+                    <option>Saragosse</option>
+                    <option>Malaga</option>
+                    <option>Bilbao</option>
+                    <option>Alicante</option>
+                `;
+            } else if (country === 'belgique') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Toutes les villes</option>
+                    <option>Bruxelles</option>
+                    <option>Anvers</option>
+                    <option>Gand</option>
+                    <option>Charleroi</option>
+                    <option>Liège</option>
+                    <option>Bruges</option>
+                    <option>Namur</option>
+                `;
+            } else if (country === 'allemagne') {
+                wilayaSelect.innerHTML = `
+                    <option value="">Toutes les villes</option>
+                    <option>Berlin</option>
+                    <option>Munich</option>
+                    <option>Hambourg</option>
+                    <option>Francfort</option>
+                    <option>Cologne</option>
+                    <option>Stuttgart</option>
+                    <option>Düsseldorf</option>
+                    <option>Dortmund</option>
+                `;
+            } else {
+                wilayaSelect.innerHTML = '<option value="">Toutes les villes</option>';
+            }
+
+            performSearch();
+        }
+        function showPublish() {
+            if (!currentUser) { notify('Connectez-vous', 'error'); showLogin(); return; }
+            document.getElementById('publish-modal').classList.add('active');
+        }
+        function startLive() {
+            if (!currentUser) { notify('Connectez-vous pour démarrer un Live', 'error'); showLogin(); return; }
+            liveLinks = [];
+            liveMessages = [];
+            document.getElementById('live-links-container').innerHTML = '';
+            document.getElementById('live-messages-container').innerHTML = '';
+            document.getElementById('live-modal').classList.add('active');
+        }
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        }
+
+        function addLiveLink() {
+            const linkId = Date.now();
+            const container = document.getElementById('live-links-container');
+            const div = document.createElement('div');
+            div.className = 'p-3 border-2 border-blue-200 rounded-lg bg-blue-50';
+            div.id = `link-container-${linkId}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-link text-blue-600"></i>
+                    <span class="text-xs font-semibold text-blue-900">Lien #${liveLinks.length + 1}</span>
+                    <button type="button" onclick="removeLiveLink(${linkId})" class="ml-auto px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+                <input type="text" id="link-title-${linkId}" placeholder="Ex: WhatsApp, Facebook, Instagram..." class="w-full px-3 py-2 mb-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <input type="url" id="link-url-${linkId}" placeholder="https://wa.me/213..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            `;
+            container.appendChild(div);
+            liveLinks.push(linkId);
+            console.log('Lien ajouté, ID:', linkId, 'Total liens:', liveLinks.length);
+        }
+
+        function removeLiveLink(linkId) {
+            const index = liveLinks.indexOf(linkId);
+            if (index > -1) {
+                liveLinks.splice(index, 1);
+            }
+            const container = document.getElementById(`link-container-${linkId}`);
+            if (container) {
+                container.remove();
+            }
+            console.log('Lien supprimé, ID:', linkId, 'Total liens restants:', liveLinks.length);
+        }
+
+        function addLiveMessage() {
+            const messageId = Date.now();
+            const container = document.getElementById('live-messages-container');
+            const div = document.createElement('div');
+            div.className = 'p-3 border-2 border-green-200 rounded-lg bg-green-50';
+            div.id = `message-container-${messageId}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-comment text-green-600"></i>
+                    <span class="text-xs font-semibold text-green-900">Message #${liveMessages.length + 1}</span>
+                    <button type="button" onclick="removeLiveMessage(${messageId})" class="ml-auto px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+                <input type="text" id="message-text-${messageId}" placeholder="Ex: Promotion 50% aujourd'hui !" class="w-full px-3 py-2 mb-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <select id="message-position-${messageId}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    <option value="top">Position: En haut</option>
+                    <option value="middle" selected>Position: Au centre</option>
+                    <option value="bottom">Position: En bas</option>
+                </select>
+            `;
+            container.appendChild(div);
+            liveMessages.push(messageId);
+            console.log('Message ajouté, ID:', messageId, 'Total messages:', liveMessages.length);
+        }
+
+        function removeLiveMessage(messageId) {
+            const index = liveMessages.indexOf(messageId);
+            if (index > -1) {
+                liveMessages.splice(index, 1);
+            }
+            const container = document.getElementById(`message-container-${messageId}`);
+            if (container) {
+                container.remove();
+            }
+            console.log('Message supprimé, ID:', messageId, 'Total messages restants:', liveMessages.length);
+        }
+
+        function handleLiveImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    liveBackgroundImage = e.target.result;
+                    // Afficher la prévisualisation
+                    document.getElementById('live-image-preview').innerHTML = `
+                        <div class="relative mt-3">
+                            <img src="${e.target.result}" class="w-full h-40 object-cover rounded-lg border-2 border-green-500">
+                            <button type="button" onclick="removeLiveImage()" class="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg shadow-lg hover:bg-red-600 transition">
+                                <i class="fas fa-trash mr-1"></i> Supprimer
+                            </button>
+                            <div class="absolute bottom-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                                <i class="fas fa-check mr-1"></i> Photo chargée
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeLiveImage() {
+            liveBackgroundImage = null;
+            document.getElementById('live-image-preview').innerHTML = '';
+            document.getElementById('live-image-input').value = '';
+        }
+
+        function register(e) {
+            e.preventDefault();
+            const user = {
+                id: Date.now(),
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                phone: document.getElementById('reg-phone').value,
+                wilaya: document.getElementById('reg-wilaya').value,
+                followers: [],
+                following: []
+            };
+
+            if (appData.users.find(u => u.email === user.email)) {
+                notify('Email existe déjà', 'error');
+                return;
+            }
+
+            appData.users.push(user);
+            notify('Compte créé !', 'success');
+            closeModals();
+            e.target.reset();
+        }
+
+        function login(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const user = appData.users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                appData.currentUser = user;
+                updateUI();
+                notify(`Bienvenue ${user.name} !`, 'success');
+                closeModals();
+            } else {
+                notify('Identifiants incorrects', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            appData.currentUser = null;
+            updateUI();
+            notify('Déconnecté', 'success');
+        }
+
+        function updateUI() {
+            const authSection = document.getElementById('auth-section');
+            const userSection = document.getElementById('user-section');
+
+            if (currentUser) {
+                authSection.style.display = 'none';
+                userSection.style.display = 'flex';
+                document.getElementById('user-name').textContent = currentUser.name;
+                updateNotificationBadge();
+            } else {
+                authSection.style.display = 'flex';
+                userSection.style.display = 'none';
+            }
+
+            loadPosts();
+        }
+
+        function handleMedia(e) {
+            const files = Array.from(e.target.files);
+            uploadedFiles = [...uploadedFiles, ...files];
+            const preview = document.getElementById('media-preview');
+            preview.innerHTML = '';
+
+            uploadedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+
+                    if (file.type.startsWith('image/')) {
+                        div.innerHTML = `
+                            <img src="${event.target.result}" class="w-full h-24 object-cover rounded-lg">
+                            <button type="button" onclick="removeMedia(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        `;
+                    } else if (file.type.startsWith('video/')) {
+                        div.innerHTML = `
+                            <video src="${event.target.result}" class="w-full h-24 object-cover rounded-lg"></video>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <i class="fas fa-play-circle text-white text-3xl opacity-80"></i>
+                            </div>
+                            <button type="button" onclick="removeMedia(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        `;
+                    }
+
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeMedia(index) {
+            uploadedFiles.splice(index, 1);
+            handleMedia({ target: { files: [] } });
+        }
+
+        function publish(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const mediaUrls = [];
+            const promises = uploadedFiles.map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        mediaUrls.push({
+                            type: file.type.startsWith('image/') ? 'image' : 'video',
+                            url: event.target.result
+                        });
+                        resolve();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                const post = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userWilaya: currentUser.wilaya,
+                    type: document.getElementById('post-type').value,
+                    category: document.getElementById('post-category').value,
+                    title: document.getElementById('post-title').value,
+                    description: document.getElementById('post-description').value,
+                    price: document.getElementById('post-price').value || null,
+                    media: mediaUrls,
+                    likes: [],
+                    comments: [],
+                    shares: 0,
+                    isLive: false,
+                    createdAt: new Date().toISOString()
+                };
+
+                appData.posts.unshift(post);
+                notify('Publié !', 'success');
+                closeModals();
+                e.target.reset();
+                uploadedFiles = [];
+                document.getElementById('media-preview').innerHTML = '';
+                loadPosts();
+            });
+        }
+
+        function createLive(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            // Récupérer les liens épinglés
+            const pinnedLinks = [];
+            console.log('liveLinks IDs:', liveLinks);
+
+            liveLinks.forEach(linkId => {
+                const title = document.getElementById(`link-title-${linkId}`)?.value;
+                const url = document.getElementById(`link-url-${linkId}`)?.value;
+                console.log(`Lien ${linkId}:`, { title, url });
+
+                if (title && url) {
+                    pinnedLinks.push({ title, url });
+                }
+            });
+
+            console.log('Liens épinglés créés:', pinnedLinks);
+
+            // Récupérer les messages à afficher
+            const screenMessages = [];
+            console.log('liveMessages IDs:', liveMessages);
+
+            liveMessages.forEach(messageId => {
+                const text = document.getElementById(`message-text-${messageId}`)?.value;
+                const position = document.getElementById(`message-position-${messageId}`)?.value;
+                console.log(`Message ${messageId}:`, { text, position });
+
+                if (text) {
+                    screenMessages.push({ text, position });
+                }
+            });
+
+            console.log('Messages sur l\'écran créés:', screenMessages);
+
+            const post = {
+                id: Date.now(),
+                userId: currentUser.id,
+                userName: currentUser.name,
+                userWilaya: currentUser.wilaya,
+                type: 'live',
+                title: document.getElementById('live-title').value,
+                description: document.getElementById('live-description').value,
+                media: [],
+                likes: [],
+                comments: [],
+                shares: 0,
+                isLive: true,
+                viewers: 0,
+                pinnedLinks: pinnedLinks,
+                screenMessages: screenMessages,
+                liveBackgroundImage: liveBackgroundImage,
+                createdAt: new Date().toISOString()
+            };
+
+            console.log('Live créé avec post:', post);
+
+            appData.posts.unshift(post);
+            notify('Live démarré ! 🔴', 'success');
+            closeModals();
+            e.target.reset();
+            liveLinks = [];
+            liveMessages = [];
+            liveBackgroundImage = null;
+            document.getElementById('live-image-preview').innerHTML = '';
+            loadPosts();
+        }
+
+        function loadPosts(filter = currentFilter) {
+            currentFilter = filter;
+            const feed = document.getElementById('posts-feed');
+            const emptyState = document.getElementById('empty-state');
+
+            let posts = appData.posts;
+            if (filter !== 'all') {
+                posts = posts.filter(p =>
+                    p.type === filter ||
+                    p.category === filter ||
+                    (filter === 'live' && p.isLive)
+                );
+            }
+
+            if (posts.length === 0) {
+                feed.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            feed.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            feed.innerHTML = posts.map(post => `
+                <div class="post-card bg-white rounded-2xl shadow-lg overflow-hidden" data-post-id="${post.id}">
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3 cursor-pointer" onclick="showProfile(${post.userId})">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                                ${post.userName.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800 hover:text-purple-600 transition">${post.userName}</p>
+                                <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-1 text-red-500"></i>${post.userWilaya}</p>
+                            </div>
+                        </div>
+                        ${post.isLive ? `
+                            <span class="badge-live px-3 py-1 text-white rounded-full text-xs font-bold flex items-center gap-1">
+                                <i class="fas fa-circle text-xs"></i>LIVE
+                            </span>
+                        ` : ''}
+                        ${currentUser && currentUser.id !== post.userId ? `
+                            <button onclick="toggleFollow(${post.userId})" class="px-4 py-2 ${isFollowing(post.userId) ? 'bg-gray-300' : 'bg-purple-600'} text-white rounded-full text-sm font-semibold">
+                                ${isFollowing(post.userId) ? t('following') : t('follow')}
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    ${post.media && post.media.length > 0 ? `
+                        <div class="relative">
+                            ${post.media[0].type === 'image' ? `
+                                <img src="${post.media[0].url}" class="w-full h-80 object-cover" alt="${post.title}">
+                            ` : `
+                                <video src="${post.media[0].url}" class="w-full h-80 object-cover" controls playsinline></video>
+                            `}
+                        </div>
+                    ` : ''}
+
+                    ${post.isLive ? `
+                        <div class="relative h-80 flex items-center justify-center overflow-hidden">
+                            ${post.liveBackgroundImage ? `
+                                <!-- Image de fond du Live -->
+                                <img src="${post.liveBackgroundImage}" class="absolute inset-0 w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+                            ` : `
+                                <!-- Fond dégradé rouge par défaut -->
+                                <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-500"></div>
+                            `}
+
+                            <div class="text-center text-white z-10">
+                                <i class="fas fa-video text-6xl mb-4 opacity-80"></i>
+                                <p class="text-2xl font-bold">${t('liveInProgress')}</p>
+                                <p class="text-lg opacity-90 mt-2">${post.viewers || Math.floor(Math.random() * 500)} ${t('viewers')}</p>
+                            </div>
+
+                            ${post.screenMessages && post.screenMessages.length > 0 ? `
+                                <!-- Messages sur l'écran -->
+                                <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4">
+                                    ${post.screenMessages.map((msg, index) => `
+                                        <div class="${
+                                            msg.position === 'top' ? 'self-start' :
+                                            msg.position === 'bottom' ? 'self-end' :
+                                            'self-center my-auto'
+                                        } w-full flex ${msg.position === 'middle' ? 'items-center justify-center' : ''}">
+                                            <div class="bg-black bg-opacity-70 text-white px-6 py-3 rounded-lg shadow-2xl border-2 border-yellow-400 animate-pulse max-w-full">
+                                                <p class="text-lg font-bold text-center break-words">${msg.text}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        ${post.pinnedLinks && post.pinnedLinks.length > 0 ? `
+                            <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-t border-blue-200">
+                                <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                    <i class="fas fa-thumbtack text-blue-600"></i>${t('pinnedLinks')}
+                                </h4>
+                                <div class="space-y-2">
+                                    ${post.pinnedLinks.map(link => `
+                                        <a href="${link.url}" target="_blank" class="flex items-center justify-between p-2 bg-white rounded-lg hover:bg-blue-50 transition border border-blue-200">
+                                            <span class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                                <i class="fas fa-link text-blue-600 text-xs"></i>${link.title}
+                                            </span>
+                                            <i class="fas fa-external-link-alt text-blue-600 text-xs"></i>
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    ` : ''}
+
+                    <div class="p-4">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-semibold">
+                                ${getPostTypeName(post.type)}
+                            </span>
+                            ${post.category ? `
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                    ${getCategoryName(post.category)}
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div class="mb-3 flex items-center gap-2 p-2 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
+                            <i class="fas fa-map-marker-alt text-red-500 text-lg"></i>
+                            <span class="font-bold text-gray-800">${post.userWilaya}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${post.title}</h3>
+                        <p class="text-gray-600 mb-3">${post.description}</p>
+                        ${post.price ? `<p class="text-2xl font-bold text-purple-600 mb-3">${parseInt(post.price).toLocaleString()} DA</p>` : ''}
+                    </div>
+
+                    <div class="px-4 py-3 border-t flex items-center justify-between">
+                        <button onclick="toggleLike(${post.id})" class="like-btn flex items-center gap-2 ${post.likes.includes(currentUser?.id) ? 'liked text-red-500' : 'text-gray-600'}">
+                            <i class="fas fa-heart text-xl"></i>
+                            <span class="font-semibold">${post.likes.length}</span>
+                        </button>
+                        <button onclick="showComments(${post.id})" class="flex items-center gap-2 text-gray-600">
+                            <i class="fas fa-comment text-xl"></i>
+                            <span class="font-semibold">${post.comments.length}</span>
+                        </button>
+                        <button onclick="share(${post.id})" class="flex items-center gap-2 text-gray-600">
+                            <i class="fas fa-share text-xl"></i>
+                            <span class="font-semibold">${post.shares}</span>
+                        </button>
+                        <button onclick="contact(${post.id})" class="px-4 py-2 bg-green-500 text-white rounded-lg font-semibold">
+                            <i class="fas fa-comment mr-1"></i>${t('contact')}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleLike(postId) {
+            if (!currentUser) { notify('Connectez-vous', 'error'); return; }
+            const post = appData.posts.find(p => p.id === postId);
+            const index = post.likes.indexOf(currentUser.id);
+            if (index > -1) {
+                post.likes.splice(index, 1);
+            } else {
+                post.likes.push(currentUser.id);
+                addNotification(post.userId, 'like', currentUser.name, `a aimé votre publication "${post.title}"`);
+            }
+            loadPosts();
+        }
+
+        function share(postId) {
+            appData.currentSharePostId = postId;
+            const post = appData.posts.find(p => p.id === postId);
+
+            const shareUrl = window.location.href;
+            const shareText = `${post.title} - ${post.price ? parseInt(post.price).toLocaleString() + ' DA' : ''}\n${post.description}`;
+            const encodedText = encodeURIComponent(shareText);
+            const encodedUrl = encodeURIComponent(shareUrl);
+
+            const shareContent = document.getElementById('share-content');
+            shareContent.innerHTML = `
+                <button onclick="shareToWhatsApp(${postId})" class="w-full flex items-center gap-4 p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">
+                    <i class="fab fa-whatsapp text-2xl"></i>
+                    <span class="font-semibold">WhatsApp</span>
+                </button>
+                <button onclick="shareToFacebook(${postId})" class="w-full flex items-center gap-4 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                    <i class="fab fa-facebook text-2xl"></i>
+                    <span class="font-semibold">Facebook</span>
+                </button>
+                <button onclick="shareToTwitter(${postId})" class="w-full flex items-center gap-4 p-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition">
+                    <i class="fab fa-twitter text-2xl"></i>
+                    <span class="font-semibold">Twitter</span>
+                </button>
+                <button onclick="shareToTelegram(${postId})" class="w-full flex items-center gap-4 p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
+                    <i class="fab fa-telegram text-2xl"></i>
+                    <span class="font-semibold">Telegram</span>
+                </button>
+                <button onclick="shareToEmail(${postId})" class="w-full flex items-center gap-4 p-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
+                    <i class="fas fa-envelope text-2xl"></i>
+                    <span class="font-semibold">Email</span>
+                </button>
+                <button onclick="copyLink(${postId})" class="w-full flex items-center gap-4 p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+                    <i class="fas fa-link text-2xl"></i>
+                    <span class="font-semibold">Copier le lien</span>
+                </button>
+            `;
+
+            document.getElementById('share-modal').classList.add('active');
+        }
+
+        function shareToWhatsApp(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            const text = `*${post.title}*\n\n${post.description}\n\n${post.price ? '💰 Prix: ' + parseInt(post.price).toLocaleString() + ' DA' : ''}\n📍 ${post.userWilaya}\n\nDZ Souk 🇩🇿 Import Export - ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            incrementShare(postId);
+        }
+
+        function shareToFacebook(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            const url = window.location.href;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(post.title)}`, '_blank');
+            incrementShare(postId);
+        }
+
+        function shareToTwitter(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            const text = `${post.title}\n\n${post.description.substring(0, 100)}...`;
+            const url = window.location.href;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            incrementShare(postId);
+        }
+
+        function shareToTelegram(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            const text = `${post.title}\n\n${post.description}\n\n${post.price ? 'Prix: ' + parseInt(post.price).toLocaleString() + ' DA' : ''}\n\nDZ Souk 🇩🇿 Import Export`;
+            const url = window.location.href;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+            incrementShare(postId);
+        }
+
+        function shareToEmail(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            const subject = `DZ Souk - ${post.title}`;
+            const body = `Découvrez cette annonce sur DZ Souk 🇩🇿 Import Export:\n\n${post.title}\n\n${post.description}\n\n${post.price ? 'Prix: ' + parseInt(post.price).toLocaleString() + ' DA' : ''}\n\nLieu: ${post.userWilaya}\nVendeur: ${post.userName}\n\nLien: ${window.location.href}`;
+            window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+            incrementShare(postId);
+        }
+
+        function copyLink(postId) {
+            const url = window.location.href;
+            const tempInput = document.createElement('input');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            notify('Lien copié ! 📋', 'success');
+            incrementShare(postId);
+            closeModals();
+        }
+
+        function incrementShare(postId) {
+            const post = appData.posts.find(p => p.id === postId);
+            post.shares++;
+            loadPosts();
+            closeModals();
+        }
+
+        function contact(postId) {
+            if (!currentUser) {
+                notify('Connectez-vous pour contacter le vendeur', 'error');
+                showLogin();
+                return;
+            }
+
+            const post = appData.posts.find(p => p.id === postId);
+            const user = appData.users.find(u => u.id === post.userId);
+
+            if (!user) {
+                notify('Utilisateur introuvable', 'error');
+                return;
+            }
+
+            // Ne pas permettre de se contacter soi-même
+            if (user.id === currentUser.id) {
+                notify('Vous ne pouvez pas vous contacter vous-même', 'info');
+                return;
+            }
+
+            // Ouvrir la messagerie avec cet utilisateur
+            showMessages();
+            setTimeout(() => {
+                openChat(user.id);
+            }, 100);
+        }
+
+        function showComments(postId) {
+            if (!currentUser) { notify('Connectez-vous', 'error'); return; }
+            appData.currentPostId = postId;
+            const post = appData.posts.find(p => p.id === postId);
+            const list = document.getElementById('comments-list');
+
+            if (post.comments.length === 0) {
+                list.innerHTML = '<div class="text-center py-8 text-gray-500">Aucun commentaire</div>';
+            } else {
+                list.innerHTML = post.comments.map(c => `
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            ${c.userName.charAt(0)}
+                        </div>
+                        <div class="flex-1 bg-gray-100 rounded-lg p-3">
+                            <p class="font-semibold text-gray-800 text-sm">${c.userName}</p>
+                            <p class="text-gray-600">${c.text}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('comments-modal').classList.add('active');
+        }
+
+        function addComment(e) {
+            e.preventDefault();
+            const post = appData.posts.find(p => p.id === appData.currentPostId);
+            const text = document.getElementById('comment-input').value;
+
+            post.comments.push({
+                id: Date.now(),
+                userId: currentUser.id,
+                userName: currentUser.name,
+                text: text,
+                createdAt: new Date().toISOString()
+            });
+
+            addNotification(post.userId, 'comment', currentUser.name, `a commenté votre publication "${post.title}"`);
+
+            document.getElementById('comment-input').value = '';
+            showComments(appData.currentPostId);
+            loadPosts();
+        }
+
+        function filterPosts(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-purple-600', 'text-white');
+            loadPosts(type);
+        }
+
+        function toggleFollow(userId) {
+            if (!currentUser) { notify('Connectez-vous', 'error'); return; }
+            const user = appData.users.find(u => u.id === currentUser.id);
+            const index = user.following.indexOf(userId);
+            if (index > -1) {
+                user.following.splice(index, 1);
+                notify('Désabonné', 'info');
+            } else {
+                user.following.push(userId);
+                addNotification(userId, 'follow', currentUser.name, `s'est abonné(e) à votre profil`);
+                notify('Abonné !', 'success');
+            }
+            loadPosts();
+        }
+
+        function isFollowing(userId) {
+            if (!currentUser) return false;
+            const user = appData.users.find(u => u.id === currentUser.id);
+            return user && user.following.includes(userId);
+        }
+
+        function isPartner(userId) {
+            if (!currentUser) return false;
+            return appData.partnerships.some(p =>
+                p.userId === currentUser.id && p.recommendedUserId === userId
+            );
+        }
+
+        function togglePartnership(userId) {
+            if (!currentUser) {
+                notify('Connectez-vous', 'error');
+                return;
+            }
+
+            const existingPartnership = appData.partnerships.find(p =>
+                p.userId === currentUser.id && p.recommendedUserId === userId
+            );
+
+            if (existingPartnership) {
+                // Retirer la recommandation
+                const index = appData.partnerships.indexOf(existingPartnership);
+                appData.partnerships.splice(index, 1);
+                notify('Partenariat retiré', 'info');
+            } else {
+                // Ajouter une recommandation avec un modal pour le commentaire
+                showPartnershipModal(userId);
+            }
+        }
+
+        function showPartnershipModal(userId) {
+            const partner = appData.users.find(u => u.id === userId);
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            <i class="fas fa-handshake mr-2 text-orange-600"></i>Recommander ${partner.name}
+                        </h2>
+                        <button onclick="this.closest('.modal').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-4">Ajoutez un commentaire pour recommander ce partenaire :</p>
+                    <textarea id="partnership-comment" placeholder="Partenaire sérieux et fiable..." rows="3" class="w-full px-4 py-3 mb-4 text-base border rounded-lg focus:ring-2 focus:ring-orange-500"></textarea>
+                    <button onclick="confirmPartnership(${userId})" class="w-full py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg font-bold hover:shadow-xl transition">
+                        <i class="fas fa-award mr-2"></i>Confirmer la Recommandation
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmPartnership(userId) {
+            const comment = document.getElementById('partnership-comment').value;
+
+            appData.partnerships.push({
+                id: Date.now(),
+                userId: currentUser.id,
+                userName: currentUser.name,
+                recommendedUserId: userId,
+                comment: comment || 'Partenaire de confiance',
+                createdAt: new Date().toISOString()
+            });
+
+            addNotification(userId, 'partnership', currentUser.name, `vous a recommandé comme partenaire !`);
+            notify('Partenaire recommandé ! 🤝', 'success');
+
+            document.querySelector('.modal').remove();
+            showProfile(userId);
+        }
+
+        function notify(msg, type = 'info') {
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+            const div = document.createElement('div');
+            div.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-xl z-50`;
+            div.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span>${msg}</span></div>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function goHome() {
+            loadPosts('all');
+            closeModals();
+        }
+
+        function search() {
+            document.getElementById('search-modal').classList.add('active');
+            performSearch();
+        }
+
+        function notifications() {
+            if (!currentUser) {
+                notify('Connectez-vous', 'error');
+                return;
+            }
+            showNotifications();
+        }
+
+        function profile() {
+            if (!currentUser) {
+                notify('Connectez-vous', 'error');
+                showLogin();
+                return;
+            }
+            showProfile();
+        }
+
+        function showProfile(userId = null) {
+            const targetUser = userId ? appData.users.find(u => u.id === userId) : currentUser;
+            if (!targetUser) return;
+
+            const isOwnProfile = !userId || userId === currentUser?.id;
+            const userPosts = appData.posts.filter(p => p.userId === targetUser.id);
+            const followers = appData.users.filter(u => u.following && u.following.includes(targetUser.id)).length;
+            const following = targetUser.following ? targetUser.following.length : 0;
+            const recommendations = appData.partnerships.filter(p => p.recommendedUserId === targetUser.id).length;
+            const myPartnerships = appData.partnerships.filter(p => p.userId === targetUser.id);
+
+            const content = document.getElementById('profile-content');
+            content.innerHTML = `
+                <div class="text-center mb-8">
+                    <div class="w-32 h-32 mx-auto bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl font-bold mb-4">
+                        ${targetUser.name.charAt(0)}
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">${targetUser.name}</h3>
+                    <p class="text-gray-600 mb-1"><i class="fas fa-envelope mr-2"></i>${targetUser.email}</p>
+                    <p class="text-gray-600 mb-1"><i class="fas fa-phone mr-2"></i>${targetUser.phone}</p>
+                    <p class="text-gray-600 mb-3"><i class="fas fa-map-marker-alt mr-2"></i>${targetUser.wilaya}</p>
+                    ${recommendations > 0 ? `
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full font-bold">
+                            <i class="fas fa-award"></i>
+                            <span>${recommendations} Recommandation${recommendations > 1 ? 's' : ''} Partenaire${recommendations > 1 ? 's' : ''}</span>
+                        </div>
+                    ` : ''}
+                    ${!isOwnProfile && currentUser ? `
+                        <button onclick="togglePartnership(${targetUser.id})" class="mt-3 px-6 py-2 ${isPartner(targetUser.id) ? 'bg-green-500' : 'bg-blue-500'} text-white rounded-lg font-semibold hover:opacity-90 transition">
+                            <i class="fas fa-handshake mr-2"></i>${isPartner(targetUser.id) ? 'Partenaire Recommandé ✓' : 'Recommander comme Partenaire'}
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div class="flex justify-around mb-8 bg-gray-100 rounded-xl p-4">
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-purple-600">${userPosts.length}</p>
+                        <p class="text-gray-600 text-sm">Publications</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-purple-600">${followers}</p>
+                        <p class="text-gray-600 text-sm">Abonnés</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-purple-600">${following}</p>
+                        <p class="text-gray-600 text-sm">Abonnements</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-orange-600">${myPartnerships.length}</p>
+                        <p class="text-gray-600 text-sm">Partenaires</p>
+                    </div>
+                </div>
+
+                ${myPartnerships.length > 0 ? `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-handshake text-orange-600"></i>Partenaires Recommandés
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            ${myPartnerships.map(p => {
+                                const partner = appData.users.find(u => u.id === p.recommendedUserId);
+                                if (!partner) return '';
+                                return `
+                                    <div class="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-3 cursor-pointer hover:shadow-lg transition" onclick="showProfile(${partner.id})">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                ${partner.name.charAt(0)}
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="font-bold text-gray-800 text-sm">${partner.name}</p>
+                                                <p class="text-xs text-gray-600"><i class="fas fa-map-marker-alt mr-1"></i>${partner.wilaya}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-gray-700 italic">"${p.comment || 'Partenaire de confiance'}"</p>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <h4 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-images mr-2"></i>Mes Publications
+                </h4>
+
+                ${userPosts.length === 0 ? `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-box-open text-5xl mb-3"></i>
+                        <p>Aucune publication</p>
+                    </div>
+                ` : `
+                    <div class="grid grid-cols-2 gap-4">
+                        ${userPosts.map(post => `
+                            <div class="bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition" onclick="closeModals(); setTimeout(() => document.getElementById('posts-feed').querySelector('[data-post-id=\\\'${post.id}\\\']')?.scrollIntoView({behavior: 'smooth', block: 'center'}), 300)">
+                                ${post.media && post.media.length > 0 ? `
+                                    ${post.media[0].type === 'image' ? `
+                                        <img src="${post.media[0].url}" class="w-full h-32 object-cover" alt="${post.title}">
+                                    ` : `
+                                        <video src="${post.media[0].url}" class="w-full h-32 object-cover"></video>
+                                    `}
+                                ` : `
+                                    <div class="w-full h-32 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-4xl">
+                                        ${post.type === 'product' ? '🛍️' : post.type === 'service' ? '🤝' : post.isLive ? '🔴' : '📢'}
+                                    </div>
+                                `}
+                                <div class="p-3">
+                                    <p class="font-semibold text-gray-800 text-sm truncate">${post.title}</p>
+                                    <div class="flex items-center justify-between mt-2 text-xs text-gray-600">
+                                        <span><i class="fas fa-heart mr-1"></i>${post.likes.length}</span>
+                                        <span><i class="fas fa-comment mr-1"></i>${post.comments.length}</span>
+                                        <span><i class="fas fa-share mr-1"></i>${post.shares}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            `;
+
+            document.getElementById('profile-modal').classList.add('active');
+        }
+
+        function showNotifications() {
+            const userNotifications = appData.notifications.filter(n => n.targetUserId === currentUser.id);
+            const list = document.getElementById('notifications-list');
+
+            if (userNotifications.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-bell-slash text-5xl mb-3"></i>
+                        <p>Aucune notification</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = userNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(n => `
+                    <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                         ${n.type === 'message' ? `onclick="showMessages(); setTimeout(() => { const senderId = appData.users.find(u => u.name === '${n.userName}')?.id; if (senderId) openChat(senderId); }, 100);"` : ''}>
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xl">
+                            ${n.type === 'like' ? '❤️' : n.type === 'comment' ? '💬' : n.type === 'follow' ? '👤' : n.type === 'partnership' ? '🤝' : n.type === 'message' ? '✉️' : '📢'}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-800"><strong>${n.userName}</strong> ${n.message}</p>
+                            <p class="text-xs text-gray-500 mt-1">${formatDate(n.createdAt)}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Marquer comme lu
+            updateNotificationBadge();
+            document.getElementById('notifications-modal').classList.add('active');
+        }
+
+        function addNotification(targetUserId, type, userName, message) {
+            if (!targetUserId || targetUserId === currentUser?.id) return;
+
+            appData.notifications.push({
+                id: Date.now(),
+                targetUserId: targetUserId,
+                type: type,
+                userName: userName,
+                message: message,
+                createdAt: new Date().toISOString()
+            });
+
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            if (!currentUser) return;
+
+            const unreadCount = appData.notifications.filter(n =>
+                n.targetUserId === currentUser.id &&
+                new Date(n.createdAt) > (currentUser.lastNotificationCheck || 0)
+            ).length;
+
+            const badge = document.getElementById('notif-badge');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Mettre à jour la dernière vérification
+            if (document.getElementById('notifications-modal').classList.contains('active')) {
+                currentUser.lastNotificationCheck = new Date();
+            }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const type = document.getElementById('search-type').value;
+            const wilaya = document.getElementById('search-wilaya').value;
+            const minPrice = document.getElementById('search-min-price').value;
+            const maxPrice = document.getElementById('search-max-price').value;
+
+            let results = appData.posts.filter(post => {
+                const matchQuery = !query ||
+                    post.title.toLowerCase().includes(query) ||
+                    post.description.toLowerCase().includes(query) ||
+                    post.userName.toLowerCase().includes(query);
+
+                const matchType = !type || post.type === type;
+                const matchWilaya = !wilaya || post.userWilaya === wilaya;
+
+                const matchPrice = (!minPrice || !post.price || parseInt(post.price) >= parseInt(minPrice)) &&
+                                 (!maxPrice || !post.price || parseInt(post.price) <= parseInt(maxPrice));
+
+                return matchQuery && matchType && matchWilaya && matchPrice;
+            });
+
+            const resultsDiv = document.getElementById('search-results');
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-search text-5xl mb-3"></i>
+                        <p>Aucun résultat</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <p class="text-sm text-gray-600 mb-4">${results.length} résultat${results.length > 1 ? 's' : ''} trouvé${results.length > 1 ? 's' : ''}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${results.map(post => `
+                            <div class="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition">
+                                ${post.media && post.media.length > 0 ? `
+                                    ${post.media[0].type === 'image' ? `
+                                        <img src="${post.media[0].url}" class="w-full h-40 object-cover" alt="${post.title}">
+                                    ` : `
+                                        <video src="${post.media[0].url}" class="w-full h-40 object-cover"></video>
+                                    `}
+                                ` : `
+                                    <div class="w-full h-40 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-5xl">
+                                        ${post.type === 'product' ? '🛍️' : post.type === 'service' ? '🤝' : post.isLive ? '🔴' : '📢'}
+                                    </div>
+                                `}
+                                <div class="p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                            ${post.userName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-800">${post.userName}</p>
+                                            <p class="text-xs text-gray-500">${post.userWilaya}</p>
+                                        </div>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-1">${post.title}</h4>
+                                    <p class="text-sm text-gray-600 mb-2 line-clamp-2">${post.description}</p>
+                                    ${post.price ? `<p class="text-lg font-bold text-purple-600">${parseInt(post.price).toLocaleString()} DA</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return "À l'instant";
+            if (minutes < 60) return `Il y a ${minutes}m`;
+            if (hours < 24) return `Il y a ${hours}h`;
+            if (days < 7) return `Il y a ${days}j`;
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        function showMessages() {
+            if (!currentUser) {
+                notify('Connectez-vous pour accéder aux messages', 'error');
+                showLogin();
+                return;
+            }
+            document.getElementById('messages-modal').classList.add('active');
+            loadConversations();
+        }
+
+        function loadConversations() {
+            if (!currentUser) return;
+
+            // Récupérer tous les utilisateurs avec qui on a échangé des messages
+            const conversationUsers = new Map();
+
+            appData.messages.forEach(msg => {
+                if (msg.senderId === currentUser.id || msg.receiverId === currentUser.id) {
+                    const otherUserId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
+
+                    if (!conversationUsers.has(otherUserId)) {
+                        conversationUsers.set(otherUserId, {
+                            userId: otherUserId,
+                            lastMessage: msg,
+                            unreadCount: 0
+                        });
+                    } else {
+                        const existing = conversationUsers.get(otherUserId);
+                        if (new Date(msg.createdAt) > new Date(existing.lastMessage.createdAt)) {
+                            existing.lastMessage = msg;
+                        }
+                    }
+
+                    // Compter les messages non lus
+                    if (msg.receiverId === currentUser.id && !msg.read) {
+                        conversationUsers.get(otherUserId).unreadCount++;
+                    }
+                }
+            });
+
+            const conversationsList = document.getElementById('conversations-list');
+
+            if (conversationUsers.size === 0) {
+                conversationsList.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-comments text-5xl mb-3"></i>
+                        <p class="text-sm">Aucune conversation</p>
+                        <p class="text-xs mt-2">Contactez un vendeur pour démarrer une conversation</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Convertir en tableau et trier par date du dernier message
+            const conversations = Array.from(conversationUsers.values())
+                .sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt));
+
+            conversationsList.innerHTML = conversations.map(conv => {
+                const otherUser = appData.users.find(u => u.id === conv.userId);
+                if (!otherUser) return '';
+
+                const lastMsg = conv.lastMessage;
+                const isFromMe = lastMsg.senderId === currentUser.id;
+                const preview = lastMsg.text.substring(0, 40) + (lastMsg.text.length > 40 ? '...' : '');
+
+                return `
+                    <div class="p-3 border-b hover:bg-gray-50 cursor-pointer transition ${appData.currentChatUserId === conv.userId ? 'bg-blue-50' : ''}"
+                         onclick="openChat(${conv.userId})">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold shrink-0">
+                                ${otherUser.name.charAt(0)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="font-semibold text-gray-800 text-sm truncate">${otherUser.name}</p>
+                                    <span class="text-xs text-gray-500">${formatDate(lastMsg.createdAt)}</span>
+                                </div>
+                                <p class="text-xs text-gray-600 truncate">
+                                    ${isFromMe ? 'Vous: ' : ''}${preview}
+                                </p>
+                            </div>
+                            ${conv.unreadCount > 0 ? `
+                                <div class="w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center shrink-0">
+                                    ${conv.unreadCount}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openChat(userId) {
+            appData.currentChatUserId = userId;
+            const otherUser = appData.users.find(u => u.id === userId);
+            if (!otherUser) return;
+
+            // Marquer les messages comme lus
+            appData.messages.forEach(msg => {
+                if (msg.senderId === userId && msg.receiverId === currentUser.id) {
+                    msg.read = true;
+                }
+            });
+
+            // Récupérer tous les messages de cette conversation
+            const conversation = appData.messages
+                .filter(msg =>
+                    (msg.senderId === currentUser.id && msg.receiverId === userId) ||
+                    (msg.senderId === userId && msg.receiverId === currentUser.id)
+                )
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            const chatArea = document.getElementById('chat-area');
+            const messageInputArea = document.getElementById('message-input-area');
+
+            // Afficher l'input de message
+            messageInputArea.classList.remove('hidden');
+
+            // En-tête de la conversation (toujours affichée)
+            const headerHtml = `
+                <div class="mb-4 p-3 bg-white border-b sticky top-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            ${otherUser.name.charAt(0)}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800">${otherUser.name}</p>
+                            <p class="text-xs text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>${otherUser.wilaya}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Afficher les messages
+            if (conversation.length === 0) {
+                chatArea.innerHTML = `
+                    ${headerHtml}
+                    <div class="text-center text-gray-500 py-12">
+                        <i class="fas fa-comments text-5xl mb-3"></i>
+                        <p class="font-semibold mb-2">${t('conversationWith')} ${otherUser.name}</p>
+                        <p class="text-sm">${t('sendFirstMessage')}</p>
+                    </div>
+                `;
+            } else {
+                chatArea.innerHTML = `
+                    ${headerHtml}
+                    <div class="space-y-3 p-4">
+                        ${conversation.map(msg => {
+                            const isFromMe = msg.senderId === currentUser.id;
+                            return `
+                                <div class="flex ${isFromMe ? 'justify-end' : 'justify-start'}">
+                                    <div class="${isFromMe ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'} rounded-2xl px-4 py-2 max-w-xs">
+                                        <p class="text-sm">${msg.text}</p>
+                                        <p class="text-xs mt-1 ${isFromMe ? 'text-blue-100' : 'text-gray-500'}">${formatDate(msg.createdAt)}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Scroll vers le bas
+            setTimeout(() => {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+
+            // Recharger la liste des conversations pour mettre à jour les compteurs
+            loadConversations();
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                notify(t('loginRequired'), 'error');
+                return;
+            }
+
+            if (!appData.currentChatUserId) {
+                notify('Erreur: Aucun destinataire sélectionné', 'error');
+                return;
+            }
+
+            const messageText = document.getElementById('message-text').value.trim();
+            if (!messageText) return;
+
+            const message = {
+                id: Date.now(),
+                senderId: currentUser.id,
+                receiverId: appData.currentChatUserId,
+                text: messageText,
+                read: false,
+                createdAt: new Date().toISOString()
+            };
+
+            appData.messages.push(message);
+            console.log('Message envoyé:', message);
+            console.log('Tous les messages:', appData.messages);
+
+            // Envoyer une notification au destinataire
+            addNotification(appData.currentChatUserId, 'message', currentUser.name, t('sentMessage'));
+
+            // Réinitialiser le champ
+            document.getElementById('message-text').value = '';
+
+            // Recharger le chat et la liste des conversations
+            openChat(appData.currentChatUserId);
+
+            notify('Message envoyé ✓', 'success');
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
